@@ -1,4 +1,6 @@
 name: Task 3 - Merge Conflict Setup
+permissions:
+  issues: write
 on:
   pull_request:
     types: [opened, synchronize]
