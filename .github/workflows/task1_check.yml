@@ -1,6 +1,4 @@
 name: Task 1 - Clone and Push Check
-permissions:
-  issues: write
 on:
   push:
     paths:
@@ -13,7 +11,7 @@ jobs:
       - name: Celebrate successful clone and push
         run: echo "✅ Task 1 Complete:You cloned the repo and pushed a file!"
 
-      - name: Find or create issue
+      - name: Find course issue
         id: issue
         uses: actions/github-script@v6
         with:
@@ -23,15 +21,10 @@ jobs:
               repo: context.repo.repo,
               state: 'open'
             });
-            let issue = issues.find(issue => issue.title.includes('Task 1: Clone and Push'));
+            const issue = issues.find(issue => issue.title.includes('Git Course Tasks'));
             if (!issue) {
-              const { data: newIssue } = await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: 'Task 1: Clone and Push',
-                body: 'This issue tracks the completion of Task 1.'
-              });
-              issue = newIssue;
+              core.setFailed('No issue found with title "Git Course Tasks".');
+              return;
             }
             core.setOutput('issue-number', issue.number);
 
