@@ -1,20 +1,23 @@
-name: Task 1 - Clone and Push Check
-permissions:
-  issues: write
+name: Task 1 - Clone and Push
 on:
   push:
-    paths:
-      - 'setup-done.txt'
-
+    branches-ignore:
+      - main
+permissions:
+  contents: read
+  actions: write
+  issues: write
+env:
+  STEP_2_FILE: ".github/steps/2-add-commit-push.md"
 jobs:
-  check-clone:
+  find_exercise:
+    name: Find Course Issue
     runs-on: ubuntu-latest
+    outputs:
+      issue-number: ${{ steps.find-issue.outputs.issue-number }}
     steps:
-      - name: Celebrate successful clone and push
-        run: echo "✅ Task 1 Complete:You cloned the repo and pushed a file!"
-
-      - name: Find course issue
-        id: issue
+      - name: Find issue
+        id: find-issue
         uses: actions/github-script@v6
         with:
           script: |
@@ -30,13 +33,61 @@ jobs:
             }
             core.setOutput('issue-number', issue.number);
 
-      - name: Comment on issue
-        uses: actions/github-script@v6
+  check_step_work:
+    name: Check Task 1 Work
+    runs-on: ubuntu-latest
+    needs: [find_exercise]
+    env:
+      ISSUE_REPOSITORY: ${{ github.repository }}
+      ISSUE_NUMBER: ${{ needs.find_exercise.outputs.issue-number }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for setup-done.txt
+        id: check-file
+        run: |
+          if [ -f "setup-done.txt" ]; then
+            echo "success=true" >> $GITHUB_ENV
+          else
+            echo "success=false" >> $GITHUB_ENV
+            exit 1
+          fi
+
+      - name: Find last comment
+        id: find-last-comment
+        uses: peter-evans/find-comment@v3
         with:
-          script: |
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: ${{ steps.issue.outputs.issue-number }},
-              body: '✅ **Task 1 Complete**: You cloned the repo and pushed a file!'
-            });
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          direction: last
+
+      - name: Update comment - Task 1 results
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          comment-id: ${{ steps.find-last-comment.outputs.comment-id }}
+          body: |
+            ✅ **Task 1 Complete**: You cloned the repo and pushed `setup-done.txt`!
+          edit-mode: replace
+
+  post_next_step_content:
+    name: Post Task 2 Instructions
+    needs: [find_exercise, check_step_work]
+    runs-on: ubuntu-latest
+    env:
+      ISSUE_REPOSITORY: ${{ github.repository }}
+      ISSUE_NUMBER: ${{ needs.find_exercise.outputs.issue-number }}
+    steps:
+      - name: Create comment - Task 2 instructions
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          body: |
+            ### Task 2: Add a File, Commit, and Push
+            1. Create a file named `my-file.txt` and add some content.
+            2. Commit the file with a message: `git commit -m "Add my-file.txt"`.
+            3. Push the file to the repo.
+            4. Wait for feedback!
