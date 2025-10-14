@@ -1,6 +1,8 @@
 # Git Beginner Course: Interactive Tasks
 
 This repo contains three interactive tasks to help you learn Git.
+[![Create Task 1 Issue](https://img.shields.io/badge/Create-Task_1_Issue-blue)](https://github.com/sanderchriss/GitPresentationTest/issues/new?title=Task%201%3A%20Clone%20and%20Push&body=I%27m%20working%20on%20Task%201%21)
+
 
 ## Tasks
 
