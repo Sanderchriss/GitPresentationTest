@@ -1,4 +1,6 @@
 name: Task 1 - Clone and Push Check
+permissions:
+  issues: write
 on:
   push:
     paths:
