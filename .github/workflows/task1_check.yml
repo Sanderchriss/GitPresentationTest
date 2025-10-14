@@ -9,4 +9,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Celebrate successful clone and push
-        run: echo "✅ Task 1 Complete: You cloned the repo and pushed a file!"
+        run: echo "✅ Task 1 Complete:You cloned the repo and pushed a file!"
