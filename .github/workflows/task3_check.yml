@@ -17,5 +17,31 @@ jobs:
           git add conflict-file.txt
           git commit -m "Create conflict"
           git push origin HEAD:conflict-branch
-      - name: Instruct to resolve conflict
-        run: echo "🔍 A merge conflict has been created. Resolve it and push your changes!"
+
+      - name: Find course issue
+        id: issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+            const issue = issues.find(issue => issue.title.includes('Git Course Tasks'));
+            if (!issue) {
+              core.setFailed('No issue found with title "Git Course Tasks".');
+              return;
+            }
+            core.setOutput('issue-number', issue.number);
+
+      - name: Comment on issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.issue.outputs.issue-number }},
+              body: '🔍 **Task 3**: A merge conflict has been created. Resolve it and push your changes!'
+            });
