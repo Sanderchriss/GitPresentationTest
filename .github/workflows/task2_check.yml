@@ -12,8 +12,37 @@ jobs:
       - name: Check commit message
         run: |
           if [[ "$(git log -1 --pretty=%s)" == *"Add my-file.txt"* ]]; then
-            echo "✅ Task 2 Complete: File added and commit message is correct!"
+            echo "success=true" >> $GITHUB_ENV
           else
-            echo "❌ Commit message should include 'Add my-file.txt'."
+            echo "success=false" >> $GITHUB_ENV
             exit 1
           fi
+
+      - name: Find course issue
+        id: issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+            const issue = issues.find(issue => issue.title.includes('Git Course Tasks'));
+            if (!issue) {
+              core.setFailed('No issue found with title "Git Course Tasks".');
+              return;
+            }
+            core.setOutput('issue-number', issue.number);
+
+      - name: Comment on issue
+        if: env.success == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.issue.outputs.issue-number }},
+              body: '✅ **Task 2 Complete**: File added and commit message is correct!'
+            });
