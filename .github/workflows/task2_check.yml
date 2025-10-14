@@ -1,27 +1,23 @@
-name: Task 2 - Add, Commit, and Push Check
-permissions:
-  issues: write
+name: Task 2 - Add, Commit, and Push
 on:
   push:
-    paths:
-      - 'my-file.txt'
-
+    branches-ignore:
+      - main
+permissions:
+  contents: read
+  actions: write
+  issues: write
+env:
+  STEP_3_FILE: ".github/steps/3-merge-conflict.md"
 jobs:
-  check-commit:
+  find_exercise:
+    name: Find Course Issue
     runs-on: ubuntu-latest
+    outputs:
+      issue-number: ${{ steps.find-issue.outputs.issue-number }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Check commit message
-        run: |
-          if [[ "$(git log -1 --pretty=%s)" == *"Add my-file.txt"* ]]; then
-            echo "success=true" >> $GITHUB_ENV
-          else
-            echo "success=false" >> $GITHUB_ENV
-            exit 1
-          fi
-
-      - name: Find course issue
-        id: issue
+      - name: Find issue
+        id: find-issue
         uses: actions/github-script@v6
         with:
           script: |
@@ -37,14 +33,62 @@ jobs:
             }
             core.setOutput('issue-number', issue.number);
 
-      - name: Comment on issue
-        if: env.success == 'true'
-        uses: actions/github-script@v6
+  check_step_work:
+    name: Check Task 2 Work
+    runs-on: ubuntu-latest
+    needs: [find_exercise]
+    env:
+      ISSUE_REPOSITORY: ${{ github.repository }}
+      ISSUE_NUMBER: ${{ needs.find_exercise.outputs.issue-number }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for my-file.txt and commit message
+        id: check-commit
+        run: |
+          if [ -f "my-file.txt" ] && [[ "$(git log -1 --pretty=%s)" == *"Add my-file.txt"* ]]; then
+            echo "success=true" >> $GITHUB_ENV
+          else
+            echo "success=false" >> $GITHUB_ENV
+            exit 1
+          fi
+
+      - name: Find last comment
+        id: find-last-comment
+        uses: peter-evans/find-comment@v3
         with:
-          script: |
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: ${{ steps.issue.outputs.issue-number }},
-              body: '✅ **Task 2 Complete**: File added and commit message is correct!'
-            });
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          direction: last
+
+      - name: Update comment - Task 2 results
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          comment-id: ${{ steps.find-last-comment.outputs.comment-id }}
+          body: |
+            ✅ **Task 2 Complete**: File added and commit message is correct!
+          edit-mode: replace
+
+  post_next_step_content:
+    name: Post Task 3 Instructions
+    needs: [find_exercise, check_step_work]
+    runs-on: ubuntu-latest
+    env:
+      ISSUE_REPOSITORY: ${{ github.repository }}
+      ISSUE_NUMBER: ${{ needs.find_exercise.outputs.issue-number }}
+    steps:
+      - name: Create comment - Task 3 instructions
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          repository: ${{ env.ISSUE_REPOSITORY }}
+          issue-number: ${{ env.ISSUE_NUMBER }}
+          body: |
+            ### Task 3: Solve a Merge Conflict (In Pairs)
+            1. Pair up with another participant.
+            2. Both of you should edit the same line in `conflict-file.txt` in your own branches.
+            3. Open a pull request to merge the branches.
+            4. Resolve the conflict locally, commit, and push the resolution.
+            5. Wait for feedback!
