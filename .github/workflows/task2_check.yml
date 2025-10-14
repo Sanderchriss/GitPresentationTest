@@ -1,4 +1,6 @@
 name: Task 2 - Add, Commit, and Push Check
+permissions:
+  issues: write
 on:
   push:
     paths:
