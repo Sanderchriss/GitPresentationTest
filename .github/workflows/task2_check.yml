@@ -1,0 +1,19 @@
+name: Task 2 - Add, Commit, and Push Check
+on:
+  push:
+    paths:
+      - 'my-file.txt'
+
+jobs:
+  check-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check commit message
+        run: |
+          if [[ "$(git log -1 --pretty=%s)" == *"Add my-file.txt"* ]]; then
+            echo "✅ Task 2 Complete: File added and commit message is correct!"
+          else
+            echo "❌ Commit message should include 'Add my-file.txt'."
+            exit 1
+          fi
