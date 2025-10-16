@@ -1,8 +1,8 @@
 name: Task 2 - Add, Commit, and Push
 on:
   push:
-    branches-ignore:
-      - main
+    paths:
+      - 'my-file.txt'
 permissions:
   contents: read
   actions: write
