@@ -1,10 +1,12 @@
 # Git Beginner Course: Interactive Tasks
 
 This repo contains three interactive tasks to help you learn Git. <br>
+
+
+## Getting Started
+- Fork this repo.
+- Follow the instructions for each task in the order provided. <br> <br>
 [![](https://img.shields.io/badge/Go%20to%20Exercise-%E2%86%92-1f883d?style=for-the-badge&logo=github&labelColor=197935)](https://github.com/sanderchriss/GitPresentationTest/issues/new?title=Git%20Course%20Tasks&body=Tracking%20completion%20of%20all%20tasks.)
-
-
-
 ## Tasks
 
 ### Task 1: Clone the Repo
@@ -26,6 +28,4 @@ This repo contains three interactive tasks to help you learn Git. <br>
 4. Resolve the conflict locally, commit, and push the resolution.
 5. GitHub Actions will confirm if the conflict is resolved.
 
-## Getting Started
-- Fork this repo.
-- Follow the instructions for each task in the order provided.
+
