@@ -1,7 +1,7 @@
 # Git Beginner Course: Interactive Tasks
 
-This repo contains three interactive tasks to help you learn Git.
-[![Create Course Issue](https://img.shields.io/badge/Create-Course_Issue-blue)](https://github.com/sanderchriss/GitPresentationTest/issues/new?title=Git%20Course%20Tasks&body=Tracking%20completion%20of%20all%20tasks.)
+This repo contains three interactive tasks to help you learn Git. <br>
+[![](https://img.shields.io/badge/Go%20to%20Exercise-%E2%86%92-1f883d?style=for-the-badge&logo=github&labelColor=197935)](https://github.com/sanderchriss/GitPresentationTest/issues/new?title=Git%20Course%20Tasks&body=Tracking%20completion%20of%20all%20tasks.)
 
 
 
